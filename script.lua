@@ -1,47 +1,32 @@
--- Script de Forcefield com menu móvel
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Atos016/forcefield/main/script.lua"))()
 
--- Criação do Gui para o menu
-local ScreenGui = Instance.new("ScreenGui")
-local Frame = Instance.new("Frame")
-local ForceFieldButton = Instance.new("TextButton")
-
--- Configurações do Gui
-ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-ScreenGui.ResetOnSpawn = false
-
--- Configurações do Frame (menu)
-Frame.Parent = ScreenGui
-Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Frame.BorderSizePixel = 2
-Frame.Position = UDim2.new(0.4, 0, 0.4, 0)
-Frame.Size = UDim2.new(0, 200, 0, 100)
-Frame.Active = true
-Frame.Draggable = true
-
--- Configurações do botão ForceField
-ForceFieldButton.Parent = Frame
-ForceFieldButton.BackgroundColor3 = Color3.fromRGB(85, 170, 255)
-ForceFieldButton.Size = UDim2.new(0, 180, 0, 50)
-ForceFieldButton.Position = UDim2.new(0, 10, 0, 25)
-ForceFieldButton.Text = "Ativar Forcefield"
-
--- Variável para controlar o ForceField
-local forceFieldActive = false
-local player = game.Players.LocalPlayer
-
--- Função para alternar o ForceField
-ForceFieldButton.MouseButton1Click:Connect(function()
-    if forceFieldActive then
-        -- Desativa o ForceField
-        if player.Character:FindFirstChild("ForceField") then
-            player.Character.ForceField:Destroy()
+-- Função para coletar automaticamente todos os itens coletáveis
+local function collectItems()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    
+    -- Itera sobre todos os objetos no workspace
+    for _, object in pairs(workspace:GetChildren()) do
+        -- Identifica os itens coletáveis (modificar dependendo do jogo)
+        if object:IsA("Part") and object:FindFirstChild("Collectible") then
+            -- Move o personagem até o item coletável
+            character.HumanoidRootPart.CFrame = object.CFrame
+            wait(0.2) -- Tempo de espera para a coleta
         end
-        ForceFieldButton.Text = "Ativar Forcefield"
-    else
-        -- Ativa o ForceField
-        local forceField = Instance.new("ForceField")
-        forceField.Parent = player.Character
-        ForceFieldButton.Text = "Desativar Forcefield"
     end
-    forceFieldActive = not forceFieldActive
+end
+
+-- Função para ativar/desativar a coleta automática
+local collecting = false
+local UIS = game:GetService("UserInputService")
+UIS.InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.G then
+        collecting = not collecting
+        if collecting then
+            print("Coleta automática ativada!")
+            collectItems()
+        else
+            print("Coleta automática desativada!")
+        end
+    end
 end)
